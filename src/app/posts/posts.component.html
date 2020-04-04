@@ -1,0 +1,15 @@
+<home></home><router-outlet></router-outlet>
+<input
+  type="text"
+  class="form-control"
+  #topic
+  (keyup.enter)="createPost(topic)"
+/>
+<ul class="list-group">
+  <li *ngFor="let post of posts" class="list-group-item">
+    <button class="btn btn-warning btn-sm" (click)="deletePost(post)">
+      Delete
+    </button>
+    {{ post.title }}
+  </li>
+</ul>
