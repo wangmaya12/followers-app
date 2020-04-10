@@ -1,73 +1,67 @@
-import { Component, OnInit } from '@angular/core';
-import { PostsService } from '../posts.service';
-import { Http, Response, Headers } from '@angular/http';
+import { Component, OnInit } from "@angular/core";
+import { AppError } from "common/app-error";
+import { NotFoundError } from "common/not-found-error";
+import { PostsService } from "app/posts.service";
 
 @Component({
-  selector: 'posts',
-  templateUrl: './posts.component.html',
-  styleUrls: ['./posts.component.css']
+  // tslint:disable-next-line: component-selector
+  selector: "posts",
+  templateUrl: "./posts.component.html",
+  styleUrls: ["./posts.component.css"],
 })
 export class PostsComponent implements OnInit {
   posts: any[];
-
   constructor(private service: PostsService) {}
-
-  ngOnInit() {
+  ngOnInit(): void {
+    // tslint:disable-next-line: deprecation
     this.service.getPosts().subscribe(
-      response => {
-        this.posts = response.json();
+      (response: any[]) => {
+        this.posts = response;
       },
-      error => {
-        alert('An Unexpected Error Occured.');
-        console.log(error);
-      }
-    );
-  }
-
-  createPost(input: HTMLInputElement) {
-    const post = { title: input.value };
-    input.value = '';
-
-    this.service.createPost(post).subscribe(
-      response => {
-        post['id'] = response.json().id;
-        this.posts.splice(0, 0, post);
-        console.log(response.json());
-      },
-      error => {
-        alert('An Unexpected Error Occured.');
-        console.log(error);
-      }
-    );
-  }
-
-  updatePost(post) {
-    this.service.updatePost(post).subscribe(
-      response => {
-        console.log(response.json());
-      },
-      error => {
-        alert('An Unexpected Error Occured.');
-        console.log(error);
-      }
-    );
-  }
-
-  deletePost(post) {
-    const index = this.posts.indexOf(post);
-    this.posts.splice(index, 1);
-    this.service.deletePost('abc').subscribe(
-      response => {
-        alert('In response');
-      },
-      (error: Response) => {
-        if (error.status === 404) {
-          alert('Post has already been deleted.');
+      (error: AppError) => {
+        if (error instanceof NotFoundError) {
+          alert("Not Found Error");
+          console.log(error.originalError);
         } else {
-          this.posts.splice(0, 0, post);
-          alert('An Unexpected Error Occured.');
+          alert("Unexpected error cooured");
+          console.log(error.originalError);
         }
-        console.log(error);
+      }
+    );
+  }
+  addPost(topic: HTMLInputElement) {
+    let post: any = { title: topic.value };
+    topic.value = "";
+    this.service.createPost(post).subscribe(
+      (res) => {
+        this.posts.splice(0, 0, post);
+        console.log(res);
+      },
+      (error: AppError) => {
+        if (error instanceof AppError) {
+          console.log(error.originalError);
+        } else {
+          console.log(error);
+        }
+      }
+    );
+  }
+  deletePost(post: any) {
+    let index = this.posts.indexOf(post);
+    this.posts.splice(index, 1);
+    this.service.deletePost(post.id).subscribe(
+      (response) => {
+        console.log(response);
+      },
+      (error: AppError) => {
+        alert("I am in error");
+        if (error instanceof NotFoundError) {
+          alert("Post has already been deleted.");
+          console.log(error.originalError);
+        } else {
+          alert("Unexpected error cooured");
+          console.log(error.originalError);
+        }
       }
     );
   }

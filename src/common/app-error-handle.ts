@@ -1,7 +1,7 @@
-import { ErrorHandler } from '@angular/core';
+import { ErrorHandler } from "@angular/core";
 
-export class AppErrorHandler implements ErrorHandler {
+export class MyAppErrorHandler implements ErrorHandler {
   handleError(error: any) {
-    alert('An unexpected error occured'), console.log(error);
+    alert("An unexpected error occured"), console.error(error);
   }
 }
